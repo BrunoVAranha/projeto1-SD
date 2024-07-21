@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+service Messenger {
+  // Unary RPC for receiving a single message
+  rpc ReceiveMessage (ChannelRequest) returns (MessageResponse);
+
+  // Server Streaming RPC for continuous message updates
+  rpc StreamMessages (ChannelRequest) returns (stream MessageResponse);
+}
+
+message ChannelRequest {
+  string channel = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}
