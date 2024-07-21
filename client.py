@@ -1,6 +1,7 @@
 import grpc
 import message_pb2
 import message_pb2_grpc
+import time
 
 def listen_unary(stub):
     channel = "canal1"
@@ -8,6 +9,7 @@ def listen_unary(stub):
         while True:
             response = stub.ReceiveMessage(message_pb2.ChannelRequest(channel=channel))
             print(f"Received message: {response.message}")
+            time.sleep(1)  # Sleep for a short duration before checking again
     except grpc.RpcError as e:
         print(f"Error receiving messages: {e}")
 

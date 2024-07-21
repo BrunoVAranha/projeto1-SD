@@ -24,10 +24,9 @@ class MessengerServicer(message_pb2_grpc.MessengerServicer):
                 message = self.channels[channel].get(timeout=5)
                 return message_pb2.MessageResponse(message=message)
             except queue.Empty:
-                if context.is_active():
-                    continue
-                else:
+                if not context.is_active():
                     context.abort(grpc.StatusCode.CANCELLED, "Client disconnected")
+                continue
 
     def StreamMessages(self, request, context):
         channel = request.channel
