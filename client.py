@@ -22,7 +22,7 @@ def listen_for_messages(stub, channel, channel_type, timeout=15):
                 print(f"Não foram recebidas mensagens por {timeout} segundos. Encerrando o assinante.")
                 break
             time.sleep(1)
-        os._exit(0)  
+        os._exit(0)
     timeout_thread = threading.Thread(target=timeout_check)
     timeout_thread.daemon = True
     timeout_thread.start()
@@ -35,7 +35,7 @@ def listen_for_messages(stub, channel, channel_type, timeout=15):
                 response = stub.ReceiveMessage(request)
                 print(f"Mensagem recebida: {response.message}")
                 last_received_time = time.time()
-                time.sleep(1)  
+                time.sleep(1)
             except grpc.RpcError as e:
                 print(f"Erro ao receber mensagens: {e}")
                 time.sleep(1)  
