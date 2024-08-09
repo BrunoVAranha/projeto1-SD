@@ -66,6 +66,17 @@ class MessengerServicer(message_pb2_grpc.MessengerServicer):
         else:
             print("Nao foi possivel remover. Canal nao encontrado.")
             return
+        
+    def _remove_message_from_file(self, channel, message):
+        file_path = os.path.join('channels', f"{channel}.txt")
+        if os.path.exists(file_path):
+            with open(file_path, "r") as file:
+                lines = file.readlines()
+
+            with open(file_path, "w") as file:
+                for line in lines:
+                    if line.strip() != message:
+                        file.write(line)
 
     def GetChannels(self, request, context):
         with self.lock:
@@ -85,6 +96,7 @@ class MessengerServicer(message_pb2_grpc.MessengerServicer):
         while True:
             try:
                 message = channels[channel].get(timeout=1)
+                self._remove_message_from_file(channel, message)
                 return message_pb2.MessageResponse(message=message)
             except queue.Empty:
                 if not context.is_active():
@@ -102,6 +114,7 @@ class MessengerServicer(message_pb2_grpc.MessengerServicer):
             while True:
                 message = q.get()
                 response = message_pb2.MessageResponse(message=message)
+                self._remove_message_from_file(channel, message)
                 yield response
         except grpc.RpcError as e:
             print(f"Cliente desconectado: {e}")
@@ -125,6 +138,7 @@ class MessengerServicer(message_pb2_grpc.MessengerServicer):
             elif channel_types[channel] == message_pb2.STREAMING:
                 for client in channels[channel]:
                     client.put(message)
+        
         return message_pb2.Empty()
 
 def serve():
